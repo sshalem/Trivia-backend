@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.trivia.entity.QuestionEntity;
 import com.trivia.model.QuestionDto;
 import com.trivia.repository.QuestionRepository;
@@ -16,84 +15,82 @@ import com.trivia.utils.Log;
 @Service
 public class QuestionServiceImpl implements QuestionService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(QuestionServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuestionServiceImpl.class);
+    @Autowired
+    private QuestionRepository questionRepository;
+    private QuestionEntity questionById;
 
-	@Autowired
-	private QuestionRepository questionRepository;
-	private QuestionEntity questionById;
-
-	@Override
-	public List<QuestionEntity> getAllQuestions() {
-		List<QuestionEntity> entities = questionRepository.findAll();
+    @Override
+    public List<QuestionEntity> getAllQuestions() {
+        List<QuestionEntity> entities = questionRepository.findAll();
 //        entities.forEach(System.out::println);
-		return questionRepository.findAll();
-	}
+        return questionRepository.findAll();
+    }
 
-	@Override
-	public QuestionEntity addQuestion(QuestionDto questionDto) {		
-		QuestionEntity questionEntity = convertQuestionDtoToQuestionEntity(questionDto);
-		Log.infoGreen(LOGGER, questionEntity);
-		return questionRepository.save(questionEntity);
-	}
+    @Override
+    public QuestionEntity addQuestion(QuestionDto questionDto) {
+        QuestionEntity questionEntity = convertQuestionDtoToQuestionEntity(questionDto);
+        Log.infoGreen(LOGGER, questionEntity);
+        return questionRepository.save(questionEntity);
+    }
 
-	@Override
-	public QuestionEntity updateQuestion(QuestionDto questionDto) {
-		QuestionEntity questionEntity = convertQuestionDtoToQuestionEntity(questionDto);
-		Log.infoGreen(LOGGER, questionEntity);
-		return questionRepository.save(questionEntity);
-	}
+    @Override
+    public QuestionEntity updateQuestion(QuestionDto questionDto) {
+        QuestionEntity questionEntity = convertQuestionDtoToQuestionEntity(questionDto);
+        Log.infoGreen(LOGGER, questionEntity);
+        return questionRepository.save(questionEntity);
+    }
 
-	@Override
-	public QuestionDto getQuestionById(long id) {
-		return convertQuestionEntityToQuestionDto(questionRepository.findQuestionById(id));
-	}
+    @Override
+    public void deleteQuestionById(long id) {
+		Log.infoGreen(LOGGER, "delete question id " + id);
+		questionRepository.deleteById(id);
+    }
 
-	/**
-	 * Helper methods
-	 */
-	private QuestionDto convertQuestionEntityToQuestionDto(QuestionEntity questionEntity) {
-		/**
-		 * Convert the answers String to a String Array of 4 elements. I Split the
-		 * Answer String by regex of "[|]"
-		 */
-		String answers = questionEntity.getAnswers();
-		String[] answersSplitAndTrim = new String[4];
-		String regex = "[|]";
-		String[] answersSplited = answers.split(regex);
+    @Override
+    public QuestionDto getQuestionById(long id) {
+        return convertQuestionEntityToQuestionDto(questionRepository.findQuestionById(id));
+    }
 
-		for (int i = 0; i < answersSplitAndTrim.length; i++) {
-			// Trim the string (Removes space at start/end of string
-			answersSplitAndTrim[i] = answersSplited[i].trim();
-		}
+    /*************************************
+     *          Helper methods
+     *************************************/
 
-		// Arrays.stream(answersSplitAndTrim).forEach(System.out::println);
+    private QuestionDto convertQuestionEntityToQuestionDto(QuestionEntity questionEntity) {
+        /**
+         * Convert the answers String to a String Array of 4 elements. I Split the
+         * Answer String by regex of "[|]"
+         */
+        String answers = questionEntity.getAnswers();
+        String[] answersSplitAndTrim = new String[4];
+        String regex = "[|]";
+        String[] answersSplited = answers.split(regex);
+        for (int i = 0; i < answersSplitAndTrim.length; i++) {
+            // Trim the string (Removes space at start/end of string
+            answersSplitAndTrim[i] = answersSplited[i].trim();
+        }
+        // Arrays.stream(answersSplitAndTrim).forEach(System.out::println);
+        /**
+         * Copy Objects properties to QuestionDto
+         */
+        QuestionDto returnedValue = new QuestionDto();
+        BeanUtils.copyProperties(questionEntity, returnedValue);
+        returnedValue.setAnswers(answersSplitAndTrim);
+        return returnedValue;
+    }
 
-		/**
-		 * Copy Objects properties to QuestionDto
-		 */
-		QuestionDto returnedValue = new QuestionDto();
-		BeanUtils.copyProperties(questionEntity, returnedValue);
-		returnedValue.setAnswers(answersSplitAndTrim);
-		return returnedValue;
-	}
-
-	private QuestionEntity convertQuestionDtoToQuestionEntity(QuestionDto questionDto) {
-
-		String[] answersStringArray = questionDto.getAnswers();
-
-		String regex = " | ";
-
-		String answers = answersStringArray[0] + regex + answersStringArray[1] + regex + answersStringArray[2] + regex
-				+ answersStringArray[3];
-
-		Log.yellow(answers);
-
-		/**
-		 * Copy Objects properties to QuestionDto
-		 */
-		QuestionEntity returnedValue = new QuestionEntity();
-		BeanUtils.copyProperties(questionDto, returnedValue);
-		returnedValue.setAnswers(answers);
-		return returnedValue;
-	}
+    private QuestionEntity convertQuestionDtoToQuestionEntity(QuestionDto questionDto) {
+        String[] answersStringArray = questionDto.getAnswers();
+        String regex = " | ";
+        String answers = answersStringArray[0] + regex + answersStringArray[1] + regex + answersStringArray[2] + regex
+                + answersStringArray[3];
+        Log.yellow(answers);
+        /**
+         * Copy Objects properties to QuestionDto
+         */
+        QuestionEntity returnedValue = new QuestionEntity();
+        BeanUtils.copyProperties(questionDto, returnedValue);
+        returnedValue.setAnswers(answers);
+        return returnedValue;
+    }
 }

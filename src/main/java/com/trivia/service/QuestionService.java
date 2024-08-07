@@ -14,4 +14,6 @@ public interface QuestionService {
     QuestionEntity addQuestion(QuestionDto questionDto);
 
     QuestionEntity updateQuestion(QuestionDto questionDto);
+
+    void deleteQuestionById(long id);
 }

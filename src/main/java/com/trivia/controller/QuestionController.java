@@ -68,6 +68,7 @@ public class QuestionController {
 	@DeleteMapping("/deleteQuestion/{id}")
 	public String deleteQuestion(@PathVariable(name = "id") long id) {
 		Log.infoGreen(LOGGER, "delete Question by Id : " + id);
+		questionServiceImpl.deleteQuestionById(id);
 		return "cde";
 	}
 }
