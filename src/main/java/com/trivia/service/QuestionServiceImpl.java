@@ -33,7 +33,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public QuestionEntity updateQuestion(QuestionDto questionDto) {
-//        System.out.println(questionEntity);
+        System.out.println(questionDto);
         return null;
     }
 
